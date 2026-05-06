@@ -1,0 +1,46 @@
+# .gcloudignore file - files to ignore when deploying to Google Cloud
+
+# Git
+.git
+.gitignore
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+bot.log
+
+# Config
+config.json
+.env
+.env.local
+
+# Old files
+bot.js
+package.json
+Procfile
+README.md
+package-gcp.json.bak
+
+# Documentation
+*.md
+docs/
+
+# Tests
+test/
+tests/
+*.test.js

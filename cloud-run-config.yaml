@@ -1,0 +1,65 @@
+# Google Cloud Run Configuration
+# Este arquivo define a configuração do serviço no Cloud Run
+# 
+# Para usar:
+# gcloud run deploy radar-solar-bot --source . --region us-central1 --config-file cloud-run-config.yaml
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: radar-solar-bot
+  namespace: default
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: "100"
+        autoscaling.knative.dev/minScale: "0"
+    spec:
+      serviceAccountName: default
+      containers:
+      - image: gcr.io/PROJECT_ID/radar-solar-bot
+        ports:
+        - containerPort: 8080
+        env:
+        - name: BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: bot-secrets
+              key: bot-token
+        - name: TELEGRAM_USER_CHAT_ID
+          valueFrom:
+            secretKeyRef:
+              name: bot-secrets
+              key: telegram-user-chat-id
+        - name: GOOGLE_CLOUD_PROJECT
+          value: "PROJECT_ID"
+        - name: NODE_ENV
+          value: "production"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.1"
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+      timeoutSeconds: 300
+  traffic:
+  - percent: 100
+    latestRevision: true
